@@ -1,0 +1,24 @@
+{
+  "name": "deck-gl-examples",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve",
+    "build": "echo This is a static template, there is no bundler or bundling involved!"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cartodb/deck-gl-examples.git"
+  },
+  "keywords": [],
+  "author": "Alejandro Tena",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cartodb/deck-gl-examples/issues"
+  },
+  "homepage": "https://github.com/cartodb/deck-gl-examples.git#readme",
+  "devDependencies": {
+    "serve": "^11.2.0"
+  }
+}

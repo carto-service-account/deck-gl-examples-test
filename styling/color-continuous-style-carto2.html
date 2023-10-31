@@ -1,0 +1,130 @@
+<html>
+  <head>
+    <!-- FONT -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+    <script src="https://unpkg.com/@deck.gl/carto@latest/dist.min.js"></script>
+
+    <script src="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.js"></script>
+    <link
+      href="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      font-family: 'Open Sans', Helvetica, sans-serif;
+    "
+  >
+    <div>
+      <style type="text/css" scoped>
+        .layer-selector {
+          font-family: "Open sans";
+          width: 300px;
+          position: absolute;
+          background: white;
+          right: 24px;
+          top: 24px;
+          z-index: 1;
+          padding: 20px;
+          border-radius: 4px;
+          box-shadow: 4px 4px 8px rgba(44, 48, 50, 0.2);
+        }
+        .layer-selector h3 {
+          font-size: 12px;
+          font-weight: 600;
+          margin-bottom: 16px;
+        }
+        .layer-selector .graph-wrapper .graph {
+          width: 100%;
+          height: 8px;
+          border-radius: 4px;
+        }
+        .layer-selector .legend {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          margin-top: 8px;
+          font-size: 10px;
+          font-weight: normal;
+          line-height: 1.6;
+          letter-spacing: 1.5px;
+          color: rgba(44, 48, 50, 0.6);
+        }
+      </style>
+      <div class="layer-selector">
+        <h3>Temperature</h3>
+        <div class="graph-wrapper">
+          <div
+            class="graph"
+            style="
+              background: linear-gradient(
+                to right,
+                rgb(247, 254, 174),
+                rgb(4, 82, 117)
+              );
+            "
+          ></div>
+        </div>
+        <p class="legend">
+          <span>Lower</span>
+          <span class="right-align">Higher</span>
+        </p>
+      </div>
+    </div>
+
+    <div id="map" style="width: 100vw; height: 100vh;"></div>
+  </body>
+
+  <script type="text/javascript">
+    deck.carto.setDefaultCredentials({
+      username: "public",
+      apiKey: "default_public",
+      apiVersion: deck.carto.API_VERSIONS.V2
+    });
+
+    const deckgl = new deck.DeckGL({
+      container: "map",
+      map: maplibregl,
+      mapStyle: deck.carto.BASEMAP.POSITRON,
+
+      initialViewState: {
+        latitude: 34,
+        longitude: -98,
+        zoom: 3
+      },
+      controller: true,
+
+      layers: [
+        new deck.carto.CartoLayer({
+          id: "temps",
+          type: deck.carto.MAP_TYPES.QUERY,
+          data: "SELECT the_geom_webmercator, value FROM temps",
+          getFillColor: deck.carto.colorContinuous({
+            attr: "value",
+            domain: [70, 75, 80, 85, 90, 95, 100],
+            colors: "BluYl"
+          }),
+          pointRadiusMinPixels: 2,
+          pickable: true
+        })
+      ],
+
+      getTooltip: ({ object }) => {
+        if (!object) return false;
+        return {
+          html: `${object.properties.value.toFixed(2)}ºF`
+        };
+      }
+    });
+  </script>
+</html>

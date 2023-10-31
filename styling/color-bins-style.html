@@ -1,0 +1,140 @@
+<html>
+  <head>
+    <!-- FONT -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+    <script src="https://unpkg.com/@deck.gl/carto@latest/dist.min.js"></script>
+
+    <script src="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.js"></script>
+    <link
+      href="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      font-family: 'Open Sans', Helvetica, sans-serif;
+    "
+  >
+    <div>
+      <style type="text/css" scoped>
+        .layer-selector {
+          font-family: "Open sans";
+          width: 300px;
+          position: absolute;
+          background: white;
+          right: 24px;
+          top: 24px;
+          z-index: 1;
+          padding: 20px;
+          border-radius: 4px;
+          box-shadow: 4px 4px 8px rgba(44, 48, 50, 0.2);
+        }
+        .layer-selector h3 {
+          font-size: 12px;
+          font-weight: 600;
+          margin-bottom: 16px;
+        }
+        .layer-selector .graph-wrapper .graph {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          width: 100%;
+          height: 8px;
+          border-radius: 4px;
+          overflow: hidden;
+        }
+        .layer-selector .graph-wrapper .graph div {
+          flex: auto;
+          height: 100%;
+        }
+        .layer-selector .legend {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          margin-top: 8px;
+          font-size: 10px;
+          font-weight: normal;
+          line-height: 1.6;
+          letter-spacing: 1.5px;
+          color: rgba(44, 48, 50, 0.6);
+        }
+      </style>
+      <div class="layer-selector">
+        <h3>Temperature</h3>
+        <div class="graph-wrapper">
+          <div class="graph">
+            <div style="background: rgb(254, 246, 181);"></div>
+            <div style="background: rgb(255, 221, 154);"></div>
+            <div style="background: rgb(255, 194, 133);"></div>
+            <div style="background: rgb(255, 166, 121);"></div>
+            <div style="background: rgb(250, 138, 118);"></div>
+            <div style="background: rgb(241, 109, 122);"></div>
+            <div style="background: rgb(225, 83, 131);"></div>
+          </div>
+        </div>
+        <p class="legend">
+          <span>Lower</span>
+          <span class="right-align">Higher</span>
+        </p>
+      </div>
+    </div>
+
+    <div id="map" style="width: 100vw; height: 100vh;"></div>
+  </body>
+
+  <script type="text/javascript">
+    deck.carto.setDefaultCredentials({
+      apiBaseUrl: "https://gcp-us-east1.api.carto.com",
+      accessToken:
+        "eyJhbGciOiJIUzI1NiJ9.eyJhIjoiYWNfbHFlM3p3Z3UiLCJqdGkiOiI1YjI0OWE2ZCJ9.Y7zB30NJFzq5fPv8W5nkoH5lPXFWQP0uywDtqUg8y8c"
+    });
+
+    const deckgl = new deck.DeckGL({
+      container: "map",
+      map: maplibregl,
+      mapStyle: deck.carto.BASEMAP.POSITRON,
+
+      initialViewState: {
+        latitude: 38,
+        longitude: -98,
+        zoom: 3
+      },
+      controller: true,
+
+      layers: [
+        new deck.carto.CartoLayer({
+          id: "higher_edu_by_county",
+          connection: "bqconn",
+          type: deck.carto.MAP_TYPES.QUERY,
+          data:
+            "SELECT geom, pct_higher_ed FROM cartobq.public_account.higher_edu_by_county",
+          getFillColor: deck.carto.colorBins({
+            attr: "pct_higher_ed",
+            domain: [0, 20, 30, 40, 50, 60, 70],
+            colors: "PinkYl"
+          }),
+          getLineColor: [0, 0, 0, 100],
+          lineWidthMinPixels: 0.5,
+          pickable: true
+        })
+      ],
+
+      getTooltip: ({ object }) => {
+        if (!object) return false;
+        return {
+          html: `${object.properties.pct_higher_ed.toFixed(2)}%`
+        };
+      }
+    });
+  </script>
+</html>
